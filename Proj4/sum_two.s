@@ -1,3 +1,13 @@
+.global _start
+_start:
+	movia	sp, 0x04000000
+	movi	r4, -7
+	movi	r5, -3
+	call sum_two
+
+done:
+	br done
+	
 sum_two:
 
 	subi	sp, sp, 8          # stack frame 32 bytes
