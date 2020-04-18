@@ -1,0 +1,6 @@
+Part 2.1:
+Your "name" here
+
+Part 2.2:
+STUDENT_NAME_LEN:   .word     your value here
+STUDENT_NAME:       .ascii    your name here  
