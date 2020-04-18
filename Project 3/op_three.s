@@ -10,8 +10,9 @@ done:
 	br done
 	
 sum_two:
-	subi	sp, sp, 8          # stack frame 32 bytes
-    stw		ra, 4(sp)          # save return address
+	subi	sp, sp, 0xc        # stack frame 32 bytes
+    stw		ra, 8(sp)          # save return address
+	stw		fp, 4(sp)
    
 	add		r2, r4, r5
 
@@ -20,8 +21,9 @@ sum_two:
     and 	r8, r9, r9
     blt 	r8, r0, overflow
    
-    ldw		ra, 4(sp)          # restore return address
-    addi	sp, sp, 8          # remove frame
+    ldw		fp, 4(sp)
+	ldw		ra, 8(sp)          # restore return address
+    addi	sp, sp, 0xc        # remove frame
    
     ret
 	
@@ -40,17 +42,17 @@ op_two:
 	ret
 
 op_three:
-	subi	sp, sp, 8          # stack frame 32 bytes
-    stw		ra, 4(sp)          # save return address
-	stw		r6, 0(sp)
+	subi	sp, sp, 0xc          # stack frame 32 bytes
+    stw		ra, 8(sp)          # save return address
+	stw		fp, 4(sp)
 	
 	call	op_two
 	mov		r4, r2
-	ldw		r6, 0(sp)
 	mov		r5, r6
 	call	op_two
    
-    ldw		ra, 4(sp)          # restore return address
-    addi	sp, sp, 8          # remove frame
+    ldw		fp, 4(sp)
+	ldw		ra, 8(sp)          # restore return address
+    addi	sp, sp, 0xc          # remove frame
    
     ret

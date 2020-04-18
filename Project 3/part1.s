@@ -2,18 +2,23 @@
 
 .global sum_two
 sum_two:
-	subi	sp, sp, 8          # stack frame 32 bytes
-    stw		ra, 4(sp)          # save return address
+	# function prologue
+	subi	sp, sp, 0xc
+    stw		ra, 8(sp)
+	stw		fp, 4(sp)
    
 	add		r2, r4, r5
 
+	# Overflow Detection
     xor		r8, r2, r4
     xor 	r9, r2, r5
     and 	r8, r9, r9
     blt 	r8, r0, overflow
    
-    ldw     ra, 4(sp)          # restore return address
-    addi    sp, sp, 8          # remove frame
+    # function epilogue
+	ldw		fp, 4(sp)
+	ldw		ra, 8(sp)
+    addi	sp, sp, 0xc
    
     ret
 
@@ -23,18 +28,20 @@ overflow:
 
 .global op_three
 op_three:
-	subi	sp, sp, 8          # stack frame 32 bytes
-    stw		ra, 4(sp)          # save return address
-	stw		r6, 0(sp)
+	# function prologue
+	subi	sp, sp, 0xc
+    stw		ra, 8(sp)
+	stw		fp, 4(sp)
 	
 	call	op_two
 	mov		r4, r2
-	ldw		r6, 0(sp)
 	mov		r5, r6
 	call	op_two
    
-    ldw		ra, 4(sp)          # restore return address
-    addi	sp, sp, 8          # remove frame
+    # function epilogue
+    ldw		fp, 4(sp)
+	ldw		ra, 8(sp)
+    addi	sp, sp, 0xc
    
     ret
 
@@ -66,3 +73,5 @@ fib_end:
 	ldw		ra, 4(sp)
 	addi	sp, sp, 8
 	ret
+
+.end
