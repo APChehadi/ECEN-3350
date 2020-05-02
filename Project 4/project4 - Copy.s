@@ -70,7 +70,35 @@ ISR_External:
     movia   r2, TimerFlag           # Set TimerFlag to 1
     movi	r2, 0x1
 
-	br      END_ISR
+	CONTROLLER:
+	blt 	r5, r11, SCROLL
+	blt 	r5, r12, PATTERN_DISP
+	br  	RESET
+	
+PATTERN_DISP:
+	ldw 	r10, 0(r9)
+	stwio 	r10, 0(r3)
+	addi	r9, r9, 4
+	addi	r5, r5, 1
+	# br  	DELAY
+    br      END_ISR
+	
+SCROLL:
+	slli	r7, r7, 8
+	ldw 	r8, 0(r4)
+	or  	r7, r7, r8
+	stwio	r7, 0(r3)
+	addi	r4,	r4, 4
+	addi	r5, r5, 1
+	# br  	DELAY
+    br      END_ISR
+	
+RESET:
+	movi	r5, 0x0
+	movia	r4, scroll_message
+	movia	r9, repeat_pattern
+	# br  	DELAY
+	br      CONTROLLER
 
 
 
@@ -95,6 +123,7 @@ NoTimer0_INT:
 	movi	r20, 0x7
 	beq		et, r18, INCREASE
 	beq		et, r19, DECREASE
+	br		END_ISR
 	
 INCREASE:
 	beq		r17, r20, END_ISR
@@ -138,13 +167,22 @@ _start:
 	orhi	sp, r0, 0x0400			# Stack Pointer at SDRAM_END+1=0x04000000
 
 # Initialize Timer0 for 100ms interrupt
-	movia	r2, 100#00000			# 1e8/1e7 = 10Hz
+	movia	r2, 10000000			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
 	movi	r16, 0(r2)
+
+# Initialize Hello Buffs Program
+    movia	r3, 0xFF200020
+	movia	r4, scroll_message
+	movi 	r5, 0x0
+	movia	r9, repeat_pattern
+	movi 	r11, 18
+	movi	r12, 30
+	stwio	r0, 0(r3)
 
 # Initialize Pushbutton 0 & 1 interrupt
 	movui	r2, 0b11				# Enable both Key0 & Key1
@@ -157,68 +195,6 @@ _start:
 	ori		r2, r2, 1				# Set .PIE bit (Processor Interrupt Enable)
 	wrctl	status, r2
 
-
-# Initialize Hello Buffs Program
-    movia	r3, 0xFF200020
-	movia	r4, scroll_message
-	movi 	r5, 0x0
-	movia	r9, repeat_pattern
-	movi 	r11, 18
-	movi	r12, 30
-	stwio	r0, 0(r3)
-
-
-# DELAY:	          
-# 	ori 	r5, r0, 0x4B40
-# 	orhi	r5, r5, 0x004C
-# 	br  	LOOP
-	
-# LOOP:
-# 	subi	r5, r5, 1
-# 	bgt 	r5, r0, LOOP
-# 	br 		CONTROLLER
-	
-
-WAIT_FOR_FLAG:
-    movia   r6, TimerFlag
-    br LOOP
-
-LOOP:
-    ldw     r6, (r6)               # Read TimerFlag
-    beq     r6, r0, LOOP
-    stw     r0,  (r6)
-    br CONTROLLER
-
-
-CONTROLLER:
-	blt 	r5, r11, SCROLL
-	blt 	r5, r12, PATTERN_DISP
-	br  	RESET
-	
-PATTERN_DISP:
-	ldw 	r10, 0(r9)
-	stwio 	r10, 0(r3)
-	addi	r9, r9, 4
-	addi	r5, r5, 1
-	# br  	DELAY
-    br      WAIT_FOR_FLAG
-	
-SCROLL:
-	slli	r7, r7, 8
-	ldw 	r8, 0(r4)
-	or  	r7, r7, r8
-	stwio	r7, 0(r3)
-	addi	r4,	r4, 4
-	addi	r5, r5, 1
-	# br  	DELAY
-    br      WAIT_FOR_FLAG
-	
-RESET:
-	movi	r5, 0x0
-	movia	r4, scroll_message
-	movia	r9, repeat_pattern
-	# br  	DELAY
-    br      WAIT_FOR_FLAG
 
 # Do Nothing
 Done:	
