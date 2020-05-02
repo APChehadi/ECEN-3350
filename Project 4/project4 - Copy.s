@@ -67,10 +67,10 @@ ISR_External:
 	# addi	r2, r2, 1				# Count-up on the 7-seg display LED bits
 	# stwio	r2, O_HEX03(gp)
 
-    movia   r2, TimerFlag           # Set TimerFlag to 1
-    movi	r2, 0x1
+    #movia   r2, TimerFlag           # Set TimerFlag to 1
+    #movi	r2, 0x1
 
-	CONTROLLER:
+CONTROLLER:
 	blt 	r5, r11, SCROLL
 	blt 	r5, r12, PATTERN_DISP
 	br  	RESET
@@ -99,9 +99,6 @@ RESET:
 	movia	r9, repeat_pattern
 	# br  	DELAY
 	br      CONTROLLER
-
-
-
 
 
 NoTimer0_INT:
@@ -167,7 +164,7 @@ _start:
 	orhi	sp, r0, 0x0400			# Stack Pointer at SDRAM_END+1=0x04000000
 
 # Initialize Timer0 for 100ms interrupt
-	movia	r2, 10000000			# 1e8/1e7 = 10Hz
+	movia	r2, 90000000			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
