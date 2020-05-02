@@ -1,0 +1,6 @@
+Part 2.1:
+TonyStark A+
+
+Part 2.2:
+STUDENT_NAME_LEN:   .word     0x10
+STUDENT_NAME:       .ascii    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd0\x00\x00\x00"  
