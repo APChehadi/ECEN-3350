@@ -150,13 +150,13 @@ _start:
 	
 
 WAIT_FOR_FLAG:
-    movia   r2, TimerFlag
+    movia   r6, TimerFlag
     br LOOP
 
 LOOP:
-    ldw     r13, (r2)               # Read TimerFlag
-    beq     r13, r0, LOOP
-    stw     r0,  (r2)
+    ldw     r6, (r6)               # Read TimerFlag
+    beq     r6, r0, LOOP
+    stw     r0,  (r6)
     br CONTROLLER
 
 
@@ -198,9 +198,11 @@ Done:
 .data
 TimerFlag:
 	.word 0
+
 repeat_pattern:
 	# A, B, A, B, A, B, C, blank, C, blank, C, blank
 	.word	0x49494949, 0x36363636, 0x49494949, 0x36363636, 0x49494949, 0x36363636, 0x7F7F7F7F, 0x00000000, 0x7F7F7F7F, 0x00000000, 0x7F7F7F7F, 0x00000000 
+
 scroll_message:
 	# "Hello Buffs---____" 
 	.word	0x76, 0x79, 0x38, 0x38, 0x3F, 0x00, 0x7C, 0x3E, 0x71, 0x71, 0x6D, 0x40, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00
