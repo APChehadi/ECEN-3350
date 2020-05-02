@@ -89,6 +89,10 @@ NoTimer0_INT:
 	#ldwio	r2, O_LEDS(gp)			# LEDs
 	#add	    r2, r2, et				# Count-up on the LEDs (Key0: +1; Key1: +2)
 	#stwio	r2, O_LEDS(gp)
+	movi	r17, 0x3
+	movi	r18, 0b1
+	movi	r19, 0b10
+	movi	r20, 0x7
 	beq		et, r18, INCREASE
 	beq		et, r19, DECREASE
 	
@@ -96,19 +100,19 @@ INCREASE:
 	beq		r17, r20, END_ISR
 	addi	r17, r17, 1
 	addi	r16, r16, 10
-	movia	r2, r16			# 1e8/1e7 = 10Hz
+	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
-
 	br	END_ISR
+	
 DECREASE:
 	beq		r17, r18, END_ISR
 	subi	r17, r17, 1	
 	subi	r16, r16, 10
-	movia	r2, r16			# 1e8/1e7 = 10Hz
+	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
@@ -140,11 +144,7 @@ _start:
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
-	movi	r17, 0x3
 	movi	r16, 0(r2)
-	movi	r18, 0b1
-	movi	r19, 0b10
-	movi	r20, 0x7
 
 # Initialize Pushbutton 0 & 1 interrupt
 	movui	r2, 0b11				# Enable both Key0 & Key1
