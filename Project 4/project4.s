@@ -43,9 +43,6 @@ EXCEPTION_HANDLER:
 	# Internal exceptions are NOT handled
 	eret
 
-
-
-
 ISR_External:
 	subi    ea, ea, 4				# Adjust ea to restart interrupted instruction
 
@@ -71,9 +68,6 @@ ISR_External:
     movi	r2, 0x1
 
 	br      END_ISR
-
-
-
 
 
 NoTimer0_INT:
@@ -132,7 +126,6 @@ _start:
     movia	r3, 0xFF200020
 	movia	r4, scroll_message
 	movi 	r5, 0x0
-	movia	r9, repeat_pattern
 	movi 	r11, 18
 	movi	r12, 30
 	stwio	r0, 0(r3)
@@ -162,16 +155,7 @@ LOOP:
 
 CONTROLLER:
 	blt 	r5, r11, SCROLL
-	blt 	r5, r12, PATTERN_DISP
 	br  	RESET
-	
-PATTERN_DISP:
-	ldw 	r10, 0(r9)
-	stwio 	r10, 0(r3)
-	addi	r9, r9, 4
-	addi	r5, r5, 1
-	# br  	DELAY
-    br      WAIT_FOR_FLAG
 	
 SCROLL:
 	slli	r7, r7, 8
@@ -186,7 +170,6 @@ SCROLL:
 RESET:
 	movi	r5, 0x0
 	movia	r4, scroll_message
-	movia	r9, repeat_pattern
 	# br  	DELAY
     br      WAIT_FOR_FLAG
 
@@ -198,10 +181,6 @@ Done:
 .data
 TimerFlag:
 	.word 0
-
-repeat_pattern:
-	# A, B, A, B, A, B, C, blank, C, blank, C, blank
-	.word	0x49494949, 0x36363636, 0x49494949, 0x36363636, 0x49494949, 0x36363636, 0x7F7F7F7F, 0x00000000, 0x7F7F7F7F, 0x00000000, 0x7F7F7F7F, 0x00000000 
 
 scroll_message:
 	# "Hello Buffs---____" 

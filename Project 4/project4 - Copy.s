@@ -123,27 +123,29 @@ NoTimer0_INT:
 	br		END_ISR
 	
 INCREASE:
-	beq		r17, r20, END_ISR
-	addi	r17, r17, 1
-	addi	r16, r16, 10
-	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
-	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
-	srli	r2, r2, 16
-	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
-	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
-	stwio   r2, O_TIMER0+4(gp)
+	# beq		r17, r20, END_ISR
+	# addi	r17, r17, 1
+	# addi	r16, r16, 10
+	# movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
+	# stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	# srli	r2, r2, 16
+	# stwio	r2, O_TIMER0+12(gp)		# Hi halfword
+	# movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
+	# stwio   r2, O_TIMER0+4(gp)
+	addi	r13, r13, 10000000
 	br	END_ISR
 	
 DECREASE:
-	beq		r17, r18, END_ISR
-	subi	r17, r17, 1	
-	subi	r16, r16, 10
-	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
-	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
-	srli	r2, r2, 16
-	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
-	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
-	stwio   r2, O_TIMER0+4(gp)
+	# beq		r17, r18, END_ISR
+	# subi	r17, r17, 1	
+	# subi	r16, r16, 10
+	# movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
+	# stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	# srli	r2, r2, 16
+	# stwio	r2, O_TIMER0+12(gp)		# Hi halfword
+	# movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
+	# stwio   r2, O_TIMER0+4(gp)
+	subi	r13, r13, 10000000
 	br	END_ISR
 
 END_ISR:
@@ -163,15 +165,6 @@ _start:
 	orhi	gp, r0, 0xFF20			# MMI/O Base address: gp <- 0xFF200000
 	orhi	sp, r0, 0x0400			# Stack Pointer at SDRAM_END+1=0x04000000
 
-# Initialize Timer0 for 100ms interrupt
-	movia	r2, 90000000			# 1e8/1e7 = 10Hz
-	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
-	srli	r2, r2, 16
-	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
-	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
-	stwio   r2, O_TIMER0+4(gp)
-	movi	r16, 0(r2)
-
 # Initialize Hello Buffs Program
     movia	r3, 0xFF200020
 	movia	r4, scroll_message
@@ -179,7 +172,18 @@ _start:
 	movia	r9, repeat_pattern
 	movi 	r11, 18
 	movi	r12, 30
+	movia	r13, Frequency
+	ldw		r13, 0(r13)
 	stwio	r0, 0(r3)
+
+# Initialize Timer0 for 100ms interrupt
+	movia	r2, r13			# 1e8/1e7 = 10Hz
+	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	srli	r2, r2, 16
+	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
+	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
+	stwio   r2, O_TIMER0+4(gp)
+	movi	r16, 0(r2)
 
 # Initialize Pushbutton 0 & 1 interrupt
 	movui	r2, 0b11				# Enable both Key0 & Key1
@@ -199,6 +203,9 @@ Done:
 
 
 .data
+Frequency:
+	.word 60000000
+
 TimerFlag:
 	.word 0
 
