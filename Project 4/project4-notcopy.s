@@ -122,8 +122,8 @@ NoTimer0_INT:
 INCREASE:
 	beq		r17, r20, END_ISR
 	addi	r17, r17, 1
-	addi	r16, r16, 10
-	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
+	addi	r16, r16, 10000
+	mov		r2, r16			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
@@ -134,8 +134,8 @@ INCREASE:
 DECREASE:
 	beq		r17, r18, END_ISR
 	subi	r17, r17, 1	
-	subi	r16, r16, 10
-	movi	r2, 0(r16)			# 1e8/1e7 = 10Hz
+	subi	r16, r16, 10000
+	mov		r2, r16			# 1e8/1e7 = 10Hz
 	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
 	srli	r2, r2, 16
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
