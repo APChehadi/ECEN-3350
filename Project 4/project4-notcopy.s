@@ -112,38 +112,37 @@ NoTimer0_INT:
 	#ldwio	r2, O_LEDS(gp)			# LEDs
 	#add	    r2, r2, et				# Count-up on the LEDs (Key0: +1; Key1: +2)
 	#stwio	r2, O_LEDS(gp)
-	movi	r17, 0x4
 	movi	r18, 0b1
 	movi	r19, 0b10
 	movi	r20, 0x7
-	beq		r2, r18, INCREASE
-	beq		r2, r19, DECREASE
+	movi	r13, 0x3
+	movi	r14, 0x2
+	beq		et, r18, DECREASE
+	beq		et, r19, INCREASE
 	br		END_ISR
 	
 INCREASE:
 	beq		r17, r20, END_ISR
 	addi	r17, r17, 1
-
-	movia	r2, 0x1000000
-	mul		r2, r2, r17
-	sthio   r2, O_TIMER0+8(gp)
-	srli    r2, r2, 16
-	sthio   r2, O_TIMER0+12(gp)
-
+	mul		r16, r16, r13
+	div		r16, r16, r14
+	mov		r2, r16			# 1e8/1e7 = 10Hz
+	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	srli	r2, r2, 16
+	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
 	br	END_ISR
 	
 DECREASE:
 	beq		r17, r18, END_ISR
-	subi	r17, r17, 1
-
-	movia	r2, 0x1000000
-	mul		r2, r2, r17
-	sthio   r2, O_TIMER0+8(gp)
-	srli    r2, r2, 16
-	sthio   r2, O_TIMER0+12(gp)
-	
+	subi	r17, r17, 1	
+	mul		r16, r16, r14
+	div		r16, r16, r13
+	mov		r2, r16			# 1e8/1e7 = 10Hz
+	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	srli	r2, r2, 16
+	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
 	br	END_ISR
@@ -166,20 +165,14 @@ _start:
 	orhi	sp, r0, 0x0400			# Stack Pointer at SDRAM_END+1=0x04000000
 
 # Initialize Timer0 for 100ms interrupt
-	movi    r16, 0x4
-	movia	r2, 0x1000000
-	mul		r2, r2, r16
-	
-	sthio   r2, O_TIMER0+8(gp)
-	srli    r2, r2, 16
-	sthio   r2, O_TIMER0+12(gp)
-
-	# stwio	r2, O_TIMER0+8(gp)		# Lo halfword
-	# srli	r2, r2, 16
-	# stwio	r2, O_TIMER0+12(gp)		# Hi halfword
-
+	movia	r2, 30000000			# 1e8/1e7 = 10Hz
+	mov		r16, r2
+	stwio	r2, O_TIMER0+8(gp)		# Lo halfword
+	srli	r2, r2, 16
+	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
+	movi	r17, 0x3
 
 # Initialize Hello Buffs Program
     movia	r3, 0xFF200020
@@ -208,9 +201,6 @@ Done:
 
 
 .data
-Speed:
-	.word 4
-
 TimerFlag:
 	.word 0
 
