@@ -172,7 +172,7 @@ _start:
 	stwio	r2, O_TIMER0+12(gp)		# Hi halfword
 	movi    r2, 0b0111         		# STOP=0 START=1, CONT=1, ITO=1
 	stwio   r2, O_TIMER0+4(gp)
-	movi	r17, 0x3
+	movi	r17, 0x4
 
 # Initialize Hello Buffs Program
     movia	r3, 0xFF200020
@@ -201,8 +201,6 @@ Done:
 
 
 .data
-TimerFlag:
-	.word 0
 
 repeat_pattern:
 	# A, B, A, B, A, B, C, blank, C, blank, C, blank
